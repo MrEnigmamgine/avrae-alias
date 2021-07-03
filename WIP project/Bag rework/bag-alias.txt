@@ -1,0 +1,6 @@
+!alias bag tembed {{f'''{'{'}{'{'}args=&ARGS&{'}'}{'}'}'''}}
+{{f'''{'{'}{'{'}coinTypes=["cp","sp","ep","gp","pp"]{'}'}{'}'}'''}}
+{{f'''{'{'}{'{'}coinRates={'{'}"cp":100,"sp":10,"ep":2,"gp":1,"pp":0.1{'}'} {'}'}{'}'}'''}}
+{{f'''{'{'}{'{'}coinPouchName="Coin Pouch"{'}'}{'}'}'''}}
+{{f'''{'{'}{'{'}coinWeighs=0.02{'}'}{'}'}'''}}
+{{get_gvar("5aee7a42-ec54-42fc-868c-92c191efc0db")}}

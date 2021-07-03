@@ -1,0 +1,115 @@
+embed
+<drac2>
+args=&ARGS&
+coinTypes=["cp","sp","ep","gp","pp"]
+coinRates={"cp":100,"sp":10,"ep":2,"gp":1,"pp":0.1}
+coinPouchName="Coin Pouch"
+coinWeighs=0.02
+O='þ'
+minorUpdate=0 if get("coinRates") else 1
+asterisk='\'
+newline='\n'
+openModes=["None","One","All"]
+coinTypes=get("coinTypes",["cp","sp","ep","gp","pp"]
+coinRates=get("coinRates",{"cp":100,"sp":10,"ep":2,"gp":1,"pp":0.1}
+coinPouchName=get("coinPouchName","Coin Pouch")
+coinWeighs=get("coinWeighs",0.02)
+blank=''
+Character=name
+argsNeedFixing=args and args[0][0] in "!?/@#$>-+%*^~&." and len(args[0])>1
+args=[args[0][0],args[0][1:]]+args[1:] if argsNeedFixing else args
+create=args and args[0].title() in "Create$"
+pack=args and args[0].title() in "Pack<"
+buy=args and args[0].title() in "Buy."
+parsed=argparse(args)
+inputCost=parsed.last("cost") if parsed.get("cost") else ''
+args.remove("-cost") or args.remove(inputCost) if inputCost else ''
+inputBundle=int(parsed.last("bundle")) if parsed.get("bundle") and parsed.last("bundle").isdigit() else ''
+args.remove("-bundle") or args.remove(str(inputBundle)) if inputBundle else ''
+set_cvar_nx("bags",'[["Bag 1",{}]]')
+bagsLoaded=load_json(bags)
+cvars=get_raw().get("cvars",{})
+oldBags=[load_json(cvars[x])for x in cvars if x.strip("bag").isdigit()]
+oldBagsConverted=[[x[0],{x[z].i:x[z].q for z in range(1,len(x))}]for x in oldBags]
+deleter=[delete_cvar(f"bag{i}") for i in range(len(oldBags))]
+bagsLoaded=bagsLoaded+oldBagsConverted
+throwaway=bagsLoaded.pop(0) if oldBags and bagsLoaded[0][1]=={} else ""
+numBags=len(bagsLoaded)
+bagsLoaded=bagsLoaded+[["Bag 2",{}]] if coinPouchName==bagsLoaded[0][0] and numBags==1 else bagsLoaded
+packs=[["Priest's Pack",{"Backpack":1,"Blanket":1,"Candle":10,"Tinderbox":1,"Alms Box":1,"Block of Incense":2,"Censer":1,"Vestments":1,"Days of Rations":2,"Waterskin (Full)":1}],["Burglar's Pack",{"Backpack":1,"Ball Bearings (Bag of 1,000)":1,"String (10 feet)":1,"Bell":1,"Candle":5,"Crowbar":1,"Hammer":1,"Pitons":10,"Hooded Lantern":1,"Oil (Flask)":2,"Days of Rations":5,"Tinderbox":1,"Waterskin (Full)":1,"Hempen Rope (50 feet)":1}],["Scholar's Pack",{"Backpack":1,"Book of Lore":1,"Ink (1 ounce Bottle)":1,"Ink Pen":1,"Parchment (Sheet)":10,"Little Bag of Sand":1,"Small Knife":1}],["Diplomat's Pack",{"Chest":1,"Map or Scroll Case":2,"Fine Clothes":1,"Ink (1 ounce Bottle)":1,"Ink Pen":1,"Lamp":1,"Oil (Flask)":2,"Paper (Sheet)":5,"Perfume (Vial)":1,"Sealing Wax":1,"Soap":1}],["Explorer's Pack",{"Backpack":1,"Bedroll":1,"Mess Kit":1,"Tinderbox":1,"Torch":10,"Days of Rations":10,"Waterskin (Full)":1,"Hempen Rope (50 feet)":1}],["Dungeoneer's Pack",{"Backpack":1,"Crowbar":1,"Hammer":1,"Piton":10,"Torch":10,"Tinderbox":1,"Days of Rations":10,"Waterskin (Full)":1,"Hempen Rope (50 feet)":1}],["Entertainer's Pack",{"Backpack":1,"Bedroll":1,"Clothes, Costume":2,"Candle":5,"Days of Rations":5,"Waterskin (Full)":1,"Disguise Kit":1}],["Monster Hunter's Pack",{"Chest":1,"Crowbar":1,"Hammer":1,"Wooden Stake":3,"Holy Symbol":1,"Holy Water (Flask)":1,"Manacles":1,"Steel Mirror":1,"Oil (Flask)":1,"Tinderbox":1,"Torch":3}],["Soldier's Pack",{"Backpack":1,"Bedroll":1,"Fuse (50 feet)":1,"Small Knife":1,"Mess Kit":1,"Musket":1,"Musket Bullets":100,"Tinderbox":1,"Torch":10,"Shovel":1,"Waterskin":1,"Vial of Antitoxin":1,"Hempen Rope (50 feet)":1}],["Exploder's Pack",{"Gunpowder Horn":3,"Gunpowder Keg":1,"Tinderbox":1,"Torch":10,"Oil (Flask)":3,"Fuse (50 feet)":1}]]+load_json(get("extraPacks",'[]'))
+bag=[[]] if args and (len(args[0])==1 and args[0] in "vhdnsmrawiutoepb" or pack) else ([x for x in bagsLoaded if args and ((args[0] in x[0] or args[0] in str(bagsLoaded.index(x)+1)) or x[0]=="Shopping Bag" and buy) and not create] or [[' '.join(args[1:])or f"Bag {numBags+1}",{}]if create else ["Shopping Bag",{}] if buy else []])
+bagSelected=bag[0]
+bag=((set("O",args[0]) or args.remove(args[create and len(args)>1]) or bag) if not buy and bag[0] else bag if buy else bagsLoaded)[0]
+mode=args.pop(0).title() if args else O.title() if create else "V"
+modes=["view!","help?","delete/","name@","swap#","create$","move>","remove-","add+","buy.","pack<","weight%","ignore*","unignore^","track~","open&","encumbrance="]
+modeSetter=[set(x.lower()[:-1],mode in x.title()) for x in modes]
+bag=([x for x in packs if args[0].lower() in x[0].lower()]+[[[],[]]])[0] if pack else bag
+view=True if not (help or delete or name or swap or create or move or remove or add or pack or weight or ignore or unignore or track or open or encumbrance or buy) else view
+modeIndex=modes.index([x for x in modes if get(x[:-1])][0])
+targetBag=(move and len(args)>1 and [x for x in bagsLoaded if args[-1] in x[0] or str(bagsLoaded.index(x)+1)==args[-1]]) or ['']
+targetBag=((args.remove(args[-1]) or targetBag) if targetBag[0] in bagsLoaded else[[f"Bag {numBags+1}",{}] if move else ''])[0]
+number=not name and args and (args[0].isdigit() and args.pop(0) or (args[-1][0].isdigit() and args[-1][-1].isdigit()) and args.pop(-1))
+inputPrice=args and buy and ''.join([x for x in args[-1] if x.isalpha()]) in coinTypes and args[-1][0].isdigit() and args.pop(-1)
+bagIndex=bagsLoaded.index(bag) if bag in bagsLoaded else None
+destination=int(number)-1 if swap else bagIndex
+quantity=int(number) if str(number).isdigit() else 1
+item=args and ([x for x in bag[1] if args[0] in x] or ['' if 3<modeIndex<8 else ' '.join(args)])[0]
+settings=load_json(get("bagSettings",dump_json({"weightlessBags":["bag of holding","handy haversack","heward's handy haversack"],"customWeights":{},"weightTracking":"Off","openMode":"All","encumbrance":"Off"})))
+viewMaker=settings.update({"openMode":"All"}) if not "openMode" in settings or not settings.openMode in openModes else ''
+encAdder=settings.update({"encumbrance":"Off"}) if not "encumbrance" in settings else ''
+weightDict=load_json(get_gvar("19753bce-e2c1-42af-8c4f-baf56e2f6749"))
+custWeights=settings.customWeights
+weightDict.update(custWeights)
+customItemDict={item.lower():{"weight":int(number) if number and number.isdigit() else float(number)} } if item and weight else ''
+(customItemDict[item.lower()].update({"cost":inputCost}) if inputCost and item and weight else '') or (customItemDict[item.lower()].update({"bundle":inputBundle}) if inputBundle and item and weight else '')
+custWeights.update(customItemDict) if item and weight and str(number)!='False' else ''
+item=item and ([x.title().replace("'S","'s") for x in weightDict if item.lower()==x and buy] or [x.title().replace("'S","'s") for x in weightDict if item.lower() in x and buy] or [item])[0]
+valid=str(item) in bag[1]
+bundled=buy and item and "bundle" in weightDict.get(item.lower(),{}) and weightDict[item.lower()].bundle or 1
+bag[1].update({item:max(0,(bag[1][item] if valid else 0)+bundled*quantity*(1 if add or buy else -1))}) if item and (move or remove or add or buy) else bagsLoaded.remove(bag) if delete or swap else (bag.pop(0),bag.insert(0,item)) if name else ''
+itemPrice=buy and (inputPrice or typeof(weightDict.get(item.lower(),{}))=='SafeDict' and weightDict.get(item.lower(),{"cost":"0gp"}).get("cost","0gp"))
+costNumber,costDenomination=itemPrice and quantity*int(''.join([x for x in itemPrice if x.isdigit()])),itemPrice and ''.join([x for x in itemPrice if x.isalpha()])
+error=not costDenomination in coinTypes
+pouch=([x for x in bagsLoaded if x[0]==coinPouchName] or [[coinPouchName,{costDenomination:0}]])[0]
+error or pouch[1].update({costDenomination:pouch[1][costDenomination]-costNumber}) if buy else ''
+error or[(set("y",coinTypes[coinTypes.index(x)+1]),set("R",int(coinRates[x]/coinRates[y])),set("p",pouch[1][x]//R),(pouch[1].update({y:pouch[1][y]+p}),pouch[1].update({x:pouch[1][x]-p*R}))if pouch[1][x]<0 else'')for x in coinTypes[:-1]]
+error=[pouch[1][x] for x in pouch[1] if pouch[1][x]<0]
+bagsLoaded.insert(destination,bag) if swap else ''
+valid and bag[1][item]==0 and not(coinPouchName==bag[0] and item in coinTypes) and bag[1].pop(item)
+move and valid and targetBag and targetBag[1].update({item:(targetBag[1][item] if item in targetBag[1] else 0)+quantity})
+valid=1 if item else 0
+bagsLoaded=bagsLoaded+([bag] if create or (buy and not bag in bagsLoaded) or (pack and bag[0]) else [targetBag] if move and not targetBag in bagsLoaded else [])
+(set_cvar("bags",dump_json(bagsLoaded))if bagsLoaded else delete_cvar("bags")) if not error else ''
+bagsLoaded=load_json(bags) if error else bagsLoaded
+pouch=([x for x in bagsLoaded if x[0]==coinPouchName] or [[coinPouchName,{costDenomination:0}]])[0] if error else pouch
+weightToggle=settings.update({"weightTracking":args[0].title() if track and args and args[0].title() in ["On","Off"] else "Off"}) if track else ''
+encToggle=settings.update({"encumbrance":args[0].title() if encumbrance and args and args[0].title() in ["On","Off"] else "Off"}) if encumbrance else ''
+viewToggle=settings.update({"openMode":args[0].title() if open and args and args[0].title() in openModes else "All"}) if open else ''
+trackWeight=True if settings.weightTracking=="On" else False
+trackEncumbrance=True if settings.encumbrance=="On" else False
+openMode=openModes.index(settings.openMode)
+addIgnore=[bag[0].lower()] if ignore else []
+removeIgnore=[bag[0].lower()] if unignore else []
+ignoreBags=settings.weightlessBags+addIgnore
+settings.update({"weightlessBags":[x for x in ignoreBags if not x in removeIgnore]})
+set_cvar("bagSettings",dump_json(settings)) if any([custWeights,ignore,unignore,track,open,encumbrance]) else ''
+totalWeight,bagWeight,coinWeight,itemWeight,lineLength,unknownItemCount=0,0,0,0,0,0
+justOne=bagSelected and view or (openMode==1 and (add or remove or buy))
+pch,pot="pouch","potion"
+text='''-desc "Bags! Make 'em, view 'em, toss 'em, swap 'em, name 'em, move 'em stuff 'em, dump 'em, fill 'em, weigh 'em, ignore 'em, track 'em!" -f "Bag Management|**help**|**h**|**?** \n This message.\n\n**create**|**c**|**$** \n Creates a bag.\n• `!bag $ \\\"[bag name]\\\"`\n\n**name**|**n**|**@** \n Names an existing bag.\n• `!bag \\\"<Bag>\\\" @ \\\"<New Name>\\\"`\n\n**delete**|**d**|**/** \n Deletes a bag and its contents. There is no additional confirmation, so make sure you have what you want out of a bag before you delete it.\n• `!bag \\\"<Bag>\\\" /`\n\n**swap**|**s**|**#** \n Swaps a bag to a different slot.\n• `!bag \\\"<Bag>\\\" # <position#>`\n\n**view**|**v**|**!** \n Views individual bags.\n• `!bag \\\"<Bag Name>\\\" !`\n• `!bag \\\"<Bag Name>\\\"`\n\n**open**|**o**|**&** \n Sets which bags will be opened when adding/removing items.\n• `!bag open none|one|all`" -f "Item Management|**buy**|**b**|**.** \n Purchases items in exchange for currency. Everything in the PHB is included. Can override prices or buy non-PHB items by including your own price at the end with no spaces. Buying ammunition is done in bundles, as per how it's listed in the PHB. Defaults to adding to a Shopping Bag. To put your purchases in an existing bag, specify the destionation bag first.\n• `!bag buy [quantity] \\\"<Item>\\\" [price]`\n• `!bag \\\"[bag name]\\\" buy [quantity] \\\"<Item>\\\" [price]`\n\n**add**|**a**|**+** \n Adds items to a bag. Default quantity is 1, default bag is slot 1.\n• `!bag \\\"[Bag]\\\" + [#] \\\"<Item>\\\"`\n• `!bag + \\\"<Item>\\\"`\n\n**remove**|**r**|**-** \n Removes items from a bag. Ditto on defaults.\n• `!bag \\\"<Bag>\\\" - [#] \\\"<Item>\\\"`\n• `!bag - \\\"<Item>\\\"`" -f "_ _|**move**|**m**|**>** \n Moves items from one bag to another. Ditto on quantity and origin bag. Defaults to a new bag if no destination provided.\n• `!bag \\\"<Origin>\\\" > [#] \\\"<Item>\\\" \\\"[Destination]\\\"`\n\n**pack**|**p**|**<** \n Adds a Pack from the Player's Handbook to your bags.\n`!bag pack \\\"<pack type>\\\"`" -f "Weight Tracking|**track**|**t**|**~** \n Toggles weight tracking `on` or `off`.\n• `!bag track on|off`\n\n**weight**|**w**|**%** \n Sets the weight of a custom item. Can also set `-cost` and `-bundle` (for ammo).\n• `!bag % \\\"<item>\\\" <weight #>`\n• e.g `!bag weight pellet 0.05 -cost 1gp -bundle 50`\n\n**ignore**|**i**|**\\*** \n Tells the alias to ignore the weight of a bag's contents.\n• `!bag \\\"<bag name>\\\" *`\n\n**unignore**|**u**|**^** \n Tells the alias to stop ignoring the weight of a bag's contents.\n`!bag \\\"<bag name>\\\" ^`\n\n**encumbrance**|**e**|**=** \n Toggles the Variant: Encumbrance rules `on` or `off`.\n• `!bag encumbrance on|off`\n\nIf you are a homebrew race that has powerful build as a feature, or a similar effect that doubles your carry weight, put your race name in a cvar as such: `!cvar powerfulBuildRaces [\\\"race name\\\"]`" -f "Inexact Matches|Some items may be marked with an asterisk. These items have been given the weight of the closest match found, but if you have too many like this, the alias will stop trying because too many loops are bad mmkay. Make sure everything is spelled correctly according to the Player's Handbook or enter custom item weights using `!bag weight <item> <weight>`. Use the **full** names of items for best results."'''+(''' -f "Minor Update|There has been a minor update to facilitate currency conversion when purchasing items. You're seeing this because you're using the verions of the alias that doesn't set the exchange rates."''' if minorUpdate else '') if help else '' if not openMode and (buy or add or remove or open) or openMode==1 and open else ''.join([f''' -f "{x[0]}{set("lineLength",len(x[0])) or set("bagWeight",0) or set("itemWeight",(weightDict[x[0].lower()] if typeof(weightDict[x[0].lower()])!="SafeDict" else weightDict[x[0].lower()].weight) if x[0].lower() in weightDict else 1 if pch in x[0].lower() else "†") or set("totalWeight",totalWeight+(itemWeight if itemWeight!="†" else 0)) or ((f" ({itemWeight} lbs.)" if itemWeight!="†" else itemWeight) if itemWeight else " ") if trackWeight else " "}|{newline.join([f'{str(x[1][z])+"x"*(not z in coinTypes) if x[1][z]!=1 else x[1][z] if z in coinTypes else blank} {z}{set("itemWeight",(weightDict[z.lower()] if typeof(weightDict[z.lower()])!="SafeDict" else weightDict[z.lower()].weight) if z.lower() in weightDict else coinWeighs if z in coinTypes else 1 if pch in z.lower() else 0.5 if pot in z.lower() else (set("unknownItemCount",unknownItemCount+(0 if z.lower() in weightDict else 1)) or ([(weightDict[y].get("weight") if typeof(weightDict[y])=="SafeDict" else weightDict[y]) for y in weightDict if y in z.lower()] if unknownItemCount<5 else [])+["†"])[0]) or set("itemWeight",itemWeight*(x[1][z] if itemWeight!="†" else 1)) or set("bagWeight" if x[0].lower() in ignoreBags or (justOne and not z in coinTypes) else "coinWeight" if z in coinTypes else "totalWeight",(bagWeight if x[0].lower() in ignoreBags or (justOne and not z in coinTypes) else coinWeight if z in coinTypes else totalWeight)+(itemWeight if itemWeight!="†" else 0)) or set("lineLength",max(lineLength,len(z)+(len((str(itemWeight*x[1][z])*2))+8 if itemWeight and itemWeight!="†" else 1 if itemWeight else 0))) or((f" ({itemWeight:.2f} lbs.){asterisk if not (z.lower() in weightDict or pch in z.lower() or pot in z.lower()) else blank}" if itemWeight!="†" else itemWeight) if itemWeight and not z in coinTypes else " ") if trackWeight else " "}'.strip() for z in x[1]]) or '*This bag is empty.*'}{(f'{newline}**Coin Weight:** {coinWeight:.2f} lbs.' if x[0]==coinPouchName else f'{newline}**Weight in bag:** {bagWeight:.2f} lbs.' if bagWeight else '') if trackWeight else ''}{'|inline' if lineLength<30 else ''}"'''.replace(".00","") for x in([pouch if error and buy else bag]if justOne else bagsLoaded) if x] if bagsLoaded else '''-desc "You have deleted your only bag."''')
+text
+pbRaces=["bugbear","firbolg","goliath","orc"]
+pbRaces=pbRaces+load_json(get("powerfulBuildRaces","[]"))
+doesntdont=["doesn't","don't"]
+carryMod=strength*(2 if get('race',get_raw().race).lower() in pbRaces else 1)*(2 if load_json(get('subclass','{}')).get("BarbarianLevel","")=="Totem Warrior" and get("l6totem","")=="Bear" else 1)
+carriedWeight=totalWeight+coinWeight
+'' if openMode!=2 and (buy or add or remove or open) else f'''-f "Total Weight Carried: {carriedWeight:.2f}{asterisk*(unknownItemCount>0)} lbs.|Carrying Capacity: {carryMod*15} lbs.{newline+"*Items marked with a dagger (†) are entirely unrecognized.*" if "†" in text else ""}{newline+asterisk+f"You have {unknownItemCount} item{'s'*(unknownItemCount>1)} which {doesntdont[unknownItemCount>1]} have an exact match in the database." if unknownItemCount else ""}"'''+((f' -f "You are Heavily Encumbered| Your speed is reduced by 20 feet and you have disadvantage on ability checks, attack rolls, and saving throws that use Strength, Dexterity, or Constitution."' if carriedWeight>(carryMod*10) else f' -f "You are Encumbered|Your speed is reduced by 10 feet."' if carriedWeight>(carryMod*5) else '') if trackEncumbrance else '') if not help and trackWeight and not justOne else ''
+T=["'s Bags"," needs help with their bags"," gets rid of their "," names their "," swaps their bags","'s got a brand new bag: ",[" failed to move "," moves "][valid],[" failed to remove "," removes "][valid],[" failed to add "," adds "][valid],[" can't afford to buy "," purchased "][not error],[" couldn't pack it"," got "][bag[0]!=[]],[" failed to provide "," sets the weight of "][valid and str(number)!='False']," deems "," decides ",[" thinks weight is just a number"," is watching their weight"][trackWeight],[" doesn't want to see their full bags"," would like to see the bag they removed something from"," would like to know what's left in all of their bags"][openMode],[" wants to get this weight off their shoulders"," is feeling weighed down"][trackEncumbrance]]
+t=["","","","","",""," to their "," from their "," to their "," for ",""," to "," to have weightless contents"," does carry some weight",""," when they add or remove an item",""]
+witem=item if weight and str(number)=='False' else ''
+item=bag[0] if ignore or unignore or (pack and bag[0]) else "weight" if weight and str(number)=='False' else (f"bundle{'s' if quantity!=1 else ''} of {item}" if bundled!=1 and buy else item) if item else "item"
+-title "{{Character}}{{T[modeIndex]}}{{'' if track or open or encumbrance or (pack and not bag[0]) else (f'a{"n" if item and item[0].lower() in "aeiou" else ""} ' if quantity==1 or weight else f'{quantity} ') if 5<modeIndex else ''}}{{'' if track or open or encumbrance or (pack and not bag[0]) else  item if weight else item.replace(item[-1],item[-1] if quantity==1 else 'ie' if item[-1]=='y' and item[-2].lower() not in 'aeiou' else 'ses' if item[-1]=='s' and item[-2] not in 'ewy' else item[-1])+(f'{"e" if item[-1] in "aiou" else ""}s' if (quantity>1 or bundled!=1) and item[-1]!='s' else '') or bag[0] if modeIndex>5 else ''}}{{t[modeIndex]}}{{'' if track or open or encumbrance or pack else (f'{costNumber} {costDenomination}' if str(costNumber)!='False' else 'an unspecified amount') if buy else (f'{number} lbs.' if number or str(number)=='0' else 'set its weight' if not witem else f'assign to {witem}') if weight else (targetBag or bag)[0] if modeIndex>1 and not (swap or ignore or unignore) else ''}}{{'!' if not view else ':'}}"
+-footer "{{['For help with your bags, see !bag help'+('\nThere is a minor update available on the Avrae Development Server.' if minorUpdate else ''),'!bag v3 by @Derixyleth#0636'][help]}}"
+-thumb https://goo.gl/6Zowo5
+-color {{color if get_raw().get("settings",{}).get("color","") else (''.join([x if x in "abcdef" else str("ghijklmnopqrstuvwxyz".index(x)%10) for x in Character.lower() if x.lower() in "abcdefghijklmnopqrstuvwxyz"])+"000000")[:6]}}
+</drac2>

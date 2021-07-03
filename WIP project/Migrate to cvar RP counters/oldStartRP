@@ -1,0 +1,14 @@
+!alias oldStartRP embed
+<drac2>
+n = "\n"
+
+set_uvar("START_TIME",time())
+
+Msg = f' -desc "Timer has started."'
+
+return Msg
+</drac2>
+-title "<name> has started roleplaying."
+-footer "Neverwinter: New Beginnings."
+-thumb <image>
+-color <color>

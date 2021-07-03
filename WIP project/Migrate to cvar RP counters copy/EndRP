@@ -1,0 +1,41 @@
+!alias EndRP embed
+<drac2>
+n = "\n"
+#Migration method.  Test for old uvar and just make it the cvar. Remove these lines after 6/30/2021
+if uvar_exists("START_TIME"):
+    character().set_cvar("rpStartTime", START_TIME)
+    delete_uvar("START_TIME")
+
+if get("rpStartTime"):
+    seconds = int(float(time())-float(rpStartTime))
+    h=str(seconds//3600)
+    m=str((seconds%3600)//60)
+    s=str((seconds%3600)%60)
+    exp = round(float((seconds) * 60 / 120 / 120 * proficiencyBonus))
+else:
+    eM = f' -desc "{name} did not start the roleplay counter."'
+    return eM
+
+if not cc_exists('NNB RP'):
+    Msg = f' -desc "{name} does not have roleplay counters setup."'
+else:
+    mod_cc('NNB RP', exp) 
+    Msg = f""" -desc 
+    "
+    Time:
+    {h} Hours
+    {m} Minutes
+    {s} Seconds
+
+    Experience:
+    Roleplay XP: +{exp}
+    Total: {cc_str("NNB RP")}
+    "
+    """
+    character().delete_cvar("rpStartTime")
+return Msg
+</drac2>
+-title "<name> has finished roleplaying."
+-footer "Neverwinter: New Beginnings timer"
+-thumb <image>
+-color <color>
