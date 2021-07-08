@@ -21,4 +21,5 @@
 {{[x.name for x in g.seasons if x.start<=D<=x.end][0]}}"
 {{holiday=[i.name.replace("'","\'") for i in g.months[month-1].holidays if i.day==day] if g.months[month-1].holidays else []}} 
 {{f"-f 'Holiday|{(', '.join(holiday))}'" if holiday else ""}}
--footer "{{f"{D}/{g.length}"}} - Based on Croebh's !curdate"
+-footer "Based on Croebh's !curdate"
+-footer "{{f"{D}/{g.length}"}} - !harpdate"
