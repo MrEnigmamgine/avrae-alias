@@ -1,7 +1,0 @@
-!alias orc-relentless
-embed
-<drac2>
-#Define variables for later use
-ch=character()
-
-</drac2>

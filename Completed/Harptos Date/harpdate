@@ -1,0 +1,25 @@
+!alias harpdate embed {{G = "1665221a-908a-40e9-ac8b-24ce938dfe09"}}
+{{yearoffset=-527 #Set how far back your world's year is from IRL year.}}
+{{timezone=-4 #Hardcodes the timezone.  Delete this line if you don't want that.}}
+{{g=load_json(get_gvar(G))}}{{weekday=['Firstday','Secondday','Thirdday','Fourthday','Fifthday','Sixthday','Seventhday','Eightday','Ninthday','Tenthday']}}
+{{timezone=float('&1&') if '&1&'.strip('-+').replace('.','').isdigit() else float(get('timezone',0))}}
+{{T=time() + (timezone*3600)}}
+{{day=int((T//86400)-12)}}
+{{weekday=weekday[day%10]}}
+{{ M = [i.length for i in g.months]}}
+{{ N = [i.name for i in g.months] }}
+{{ month, day = 1,(int(day) if int(day)<=g.length else int(day)%g.length)}}
+{{hour=int(T%86400//3600)}}
+{{minute=int(T%86400%3600//60)}}
+{{ m, D=int(str(round(int(day)/(g.moonCycle),0))[:-2])%len(g.moon), day}}
+{{ "" if [ set("day", day-M[x]) or set("month", month+1) for x in range(len(M)) if month>x and day > M[x] ] else ""}}
+{{z=int(str(day)[-1:])}}
+{{suffix = 'th' if 14>int(day)>10 else 'st' if z == 1 else 'nd' if z == 2 else 'rd' if z == 3 else 'th'}}
+-title "{{g.name}}"
+-desc "{{f"{round(hour%12.1) or 12:02d}:{minute:02d} {['AM','PM'][int((hour+1)//12.1)]}"}}, {{f"{day}{suffix} day of " if g.months[month-1].length != 1 else ''}}{{N[month-1]}}, {{int(1970 + yearoffset + ((time()//86400)-11)/365)}}"
+-f "Moon Phase / Season|{{g.moon[m]}}
+{{[x.name for x in g.seasons if x.start<=D<=x.end][0]}}"
+{{holiday=[i.name.replace("'","\'") for i in g.months[month-1].holidays if i.day==day] if g.months[month-1].holidays else []}} 
+{{f"-f 'Holiday|{(', '.join(holiday))}'" if holiday else ""}}
+-footer "Based on Croebh's !curdate"
+-footer "{{f"{D}/{g.length}"}} - !harpdate"
