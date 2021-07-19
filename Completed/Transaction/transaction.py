@@ -60,6 +60,9 @@ else:
 -footer '!transaction [+/-]Xgp [+/-]Xsp "Description of Transaction"'
 
 
+################################################################################################
+############### Here begins notes and testing stuff.  Not part of Alias ########################
+################################################################################################
 
 !tra +25gp -10sp 12cp "Description of transaction"
 
