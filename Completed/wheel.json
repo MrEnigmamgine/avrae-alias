@@ -1,0 +1,111 @@
+{
+    "length": 320,
+    "name": "The Eightfold Wheel",
+    "moon": 
+      [
+        "🌕 Full Moon",
+        "🌖 Waning Gibbous",
+        "🌗 Last Quarter",
+        "🌘 Waning Crescent",
+        "🌑 New Moon",
+        "🌒 Waxing Crescent",
+        "🌓 First Quarter",
+        "🌔 Waxing Gibbous"
+      ],
+    "weekdays":
+        [
+            "Moon",
+            "Syl",
+            "Rowan",
+            "Elder",
+            "First Dual",
+            "Second Dual",
+            "Oak",
+            "Willow",
+            "Birch",
+            "Sun"
+        ],
+    "moonCycle": 20,
+    "seasons": 
+      [
+        {
+          "name": "❄ Winter",
+          "start": 1,
+          "end": 40
+        },
+        {
+          "name": "🌱 Spring",
+          "start": 41,
+          "end": 120 
+        },
+        {
+          "name": "☀️ Summer",
+          "start": 121,
+          "end": 200
+        },
+        {
+          "name": "🍂 Fall",
+          "start": 201,
+          "end": 280
+        },
+        {
+          "name": "❄ Winter",
+          "start": 281,
+          "end": 295
+        },
+        {
+            "name": "🌌 The Long Night",
+            "start": 296,
+            "end": 320
+        }
+      ],
+    "months":
+      [
+        {
+          "name": "Imbolc",
+          "length": 40,
+          "holidays":
+            [
+                {
+                    "name": "Imbolc",
+                    "day":40
+                }
+            ]
+        },
+        {
+            "name": "Ostara",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Beltane",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Litha",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Lammas",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Mabon",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Sa'uain",
+            "length": 40,
+            "holidays":[]
+        },
+        {
+            "name": "Yule",
+            "length": 40,
+            "holidays":[]
+        }
+      ]
+  }
